@@ -6,6 +6,7 @@ import hashlib
 import gspread
 from google.oauth2.service_account import Credentials
 from gspread.auth import authorize
+import json
 
 # Page config
 st.set_page_config(

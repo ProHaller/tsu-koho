@@ -173,3 +173,4 @@ pyproject.toml
 uv.lock
 credentials.json
 .python-version
+.streamlit/secrets.toml
