@@ -29,13 +29,19 @@ DEBUG = False
 @st.cache_resource
 def get_gsheet_client():
     try:
-        credentials = Credentials.from_service_account_file(
-            "credentials.json", scopes=SCOPES
+        # Load credentials from Streamlit secrets
+        credentials_dict = json.loads(st.secrets["gcp_service_account"]["credentials"])
+        
+        credentials = Credentials.from_service_account_info(
+            credentials_dict, scopes=SCOPES
         )
         client = gspread.authorize(credentials)
         return client
-    except FileNotFoundError:
-        st.error("❌ credentials.json file not found. Please ensure the file exists in the app directory.")
+    except KeyError:
+        st.error("❌ GCP service account credentials not found in Streamlit secrets.")
+        return None
+    except json.JSONDecodeError:
+        st.error("❌ Invalid JSON format in credentials secret.")
         return None
     except ValueError as e:
         st.error(f"❌ Invalid credentials format: {str(e)}")
