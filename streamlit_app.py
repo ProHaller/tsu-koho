@@ -30,24 +30,32 @@ DEBUG = False
 def get_gsheet_client():
     try:
         # Load credentials from Streamlit secrets
+        if DEBUG:
+            st.write("🔍 Debug: Attempting to load credentials from secrets")
+        
         credentials_dict = json.loads(st.secrets["gcp_service_account"]["credentials"])
+        
+        if DEBUG:
+            st.write("🔍 Debug: Successfully loaded credentials JSON")
+            # Print the keys (but not the values) to verify structure
+            st.write("🔍 Debug: Credential keys:", list(credentials_dict.keys()))
         
         credentials = Credentials.from_service_account_info(
             credentials_dict, scopes=SCOPES
         )
         client = gspread.authorize(credentials)
         return client
-    except KeyError:
-        st.error("❌ GCP service account credentials not found in Streamlit secrets.")
+    except KeyError as e:
+        st.error(f"❌ GCP service account credentials not found in Streamlit secrets. Missing key: {str(e)}")
         return None
-    except json.JSONDecodeError:
-        st.error("❌ Invalid JSON format in credentials secret.")
+    except json.JSONDecodeError as e:
+        st.error(f"❌ Invalid JSON format in credentials secret: {str(e)}")
         return None
     except ValueError as e:
         st.error(f"❌ Invalid credentials format: {str(e)}")
         return None
     except Exception as e:
-        st.error(f"❌ Authentication error: {str(e)}")
+        st.error(f"❌ Authentication error: {str(e)}\nType: {type(e).__name__}")
         return None
 
 
